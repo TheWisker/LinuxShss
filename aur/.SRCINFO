@@ -1,0 +1,15 @@
+pkgbase = linuxshss
+	pkgdesc = Collection of utility scripts for Linux, designed to simplify and automate a variety of tasks
+	pkgver = v1.0.0
+	pkgrel = 1
+	url = https://github.com/TheWisker/LinuxShss
+	arch = any
+	license = GPL-3.0-or-later
+	makedepends = git
+	depends = curl
+	depends = jq
+	depends = bash
+	source = linuxshss-v1.0.0::git+https://github.com/TheWisker/LinuxShss#tag=v1.0.0
+	sha512sums = deb49b06520fa42f6cc06cdd07e948b69ff95686a589ea0360dd20ecfaf449aa2291f6f29ebe2a773df1e197fe40ea7863213ed82d030ee9bf8c56a12e2769d0
+
+pkgname = linuxshss

@@ -1,0 +1,28 @@
+# Maintainer: Wisker <TheWisker@protonmail.com>
+pkgname=linuxshss
+pkgver=v1.0.0
+pkgrel=1
+pkgdesc="Collection of utility scripts for Linux, designed to simplify and automate a variety of tasks"
+arch=('any')
+url="https://github.com/TheWisker/LinuxShss"
+license=('GPL-3.0-or-later')
+depends=('curl' 'jq' 'bash')
+makedepends=('git')
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("${pkgname}-${pkgver}::git+https://github.com/TheWisker/LinuxShss#tag=${pkgver}")
+noextract=()
+validpgpkeys=()
+sha512sums=('deb49b06520fa42f6cc06cdd07e948b69ff95686a589ea0360dd20ecfaf449aa2291f6f29ebe2a773df1e197fe40ea7863213ed82d030ee9bf8c56a12e2769d0')
+
+package() {
+    mkdir -p "${pkgdir}/etc/skel/.local/bin/"
+    cp "${srcdir}/${pkgname}-${pkgver}/bin/"* "${pkgdir}/etc/skel/.local/bin/"
+}
