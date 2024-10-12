@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software in your work, or make a fork of it, please cite it using the following metadata."
+authors:
+- given-names: "TheWisker"
+title: "LinuxShss Project"
+version: 1.0.0
+date-released: 2024-10-12
+url: "https://github.com/TheWisker/LinuxShss"
