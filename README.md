@@ -78,8 +78,8 @@ You can install **LinuxShss** from the [AUR][aur] repository:
 
 Then you should **ensure** the shell you use has `~/.local/bin` added to the **PATH** env.
 
-[!NOTE]
-Only users **created after** installation will have the scripts in `~/.local/bin` as explained in the *manual* installation instructions.
+> [!NOTE]
+> Only users **created after** installation will have the scripts in `~/.local/bin` as explained in the *manual* installation instructions.
 
 <h3>Manually</h3>
 
@@ -90,12 +90,16 @@ Check you have the **required** [dependencies][dependencies].
 When installed *globally*, every user **created after** the installation will receive a **copy** of the scripts in `~/.local/bin` except if the system has a *different* skel directory configured or *does not copy* the skel directory on
 user creation. After installing the scripts **ensure** the shell you use has `~/.local/bin` added to the **PATH** env as to be able to directly run the scripts without having to be on the installation directory.
 
-Also, note that even though the scripts can be installed to a global location like `/usr/bin` it is preffered to install them to the user path `~/.local/bin` as they are meant to be easyly customizable and some perform
-user-specific actions.
+> [!NOTE]
+> Even though the scripts can be installed to a global location like `/usr/bin` it is preffered to install them to the user path `~/.local/bin` as they are meant to be easyly customizable and some perform
+> user-specific actions.
 
 <h2 align="center">Updating [<a href="https://github.com/TheWisker/LinuxShss#index">↑</a>]</h2>
 
-When updating **LinuxShss** just follow the steps for installation, noting that any **custom changes** to the scripts will **dissapear**. If you wish those changes **persist** simply add them to the **new** scripts.
+When updating **LinuxShss** just follow the steps for installation. 
+
+> [!WARNING]
+> Any **custom changes** to the scripts will **dissapear**. If you wish those changes **persist** simply add them to the **new** scripts.
 
 <h2 align="center">Dependencies [<a href="https://github.com/TheWisker/LinuxShss#index">↑</a>]</h2>
 
@@ -155,11 +159,7 @@ We look forward to your contributions!
 
 <h2 align="center">License [<a href="https://github.com/TheWisker/LinuxShss#index">↑</a>]</h2>
 
-<div align="center">
-  <picture>
-    <img src="./assets/metrics/licenses.svg"/>
-  </picture>
-</div>
+<p align="center"> This project is licensed under the <a href="./LICENSE"><b>GNU GENERAL PUBLIC LICENSE v3</b></a>.</p>
 
 <h2 align="center">Code of Conduct [<a href="https://github.com/TheWisker/LinuxShss#index">↑</a>]</h2>
 
