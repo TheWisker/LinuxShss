@@ -1,0 +1,274 @@
+#!/bin/bash
+# <===================================================>
+# @license LinuxShss
+# bin/locrel
+#
+# Copyright (c) 2024, TheWisker.
+#
+# This source code is licensed under the GNU license found in the
+# LICENSE file in the root directory of this source tree.
+# <===================================================>
+
+#   ██╗      ██████╗  ██████╗██████╗ ███████╗██╗     
+#   ██║     ██╔═══██╗██╔════╝██╔══██╗██╔════╝██║     
+#   ██║     ██║   ██║██║     ██████╔╝█████╗  ██║     
+#   ██║     ██║   ██║██║     ██╔══██╗██╔══╝  ██║     
+#   ███████╗╚██████╔╝╚██████╗██║  ██║███████╗███████╗
+#   ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝                                                                               
+
+# <===================================================>
+#                  @Author: TheWisker
+# <===================================================>
+#   Script that checks for new releases of local pkgs
+# <===================================================>
+#  [Variables] Configuration:
+# <===================================================>
+#  File containing origins to check in the format:
+# <===================================================>
+#   - <provider> <identifier> <latest_version> (<branch>)
+# <===================================================>
+#   - <provider>: ('aur' | 'github' | 'github-commit')
+#   - <identifier>: (aur -> package-name | (github | github-commit) -> user/repo)
+#   - <latest_version>: ((aur | github) -> latest-version | github-commit -> hash)
+#   - <branch>: ((aur | github) -> not-allowed | github-commit -> branch) [Default: master]
+# <===================================================>
+#   - aur shikai-theme v1.5.3-1
+#   - github TheWisker/Shikai v1.5.3
+#   - github-commit TheWisker/Shikai 33220107395cfbddede8b6a679269ec71fd9bb75 master
+# <===================================================>
+origins=/etc/locrec/origins
+# <===================================================>
+#  [Variables] Title & Separator & Colors:
+# <===================================================>
+title="
+  ██╗      ██████╗  ██████╗██████╗ ███████╗██╗     
+  ██║     ██╔═══██╗██╔════╝██╔══██╗██╔════╝██║     
+  ██║     ██║   ██║██║     ██████╔╝█████╗  ██║     
+  ██║     ██║   ██║██║     ██╔══██╗██╔══╝  ██║     
+  ███████╗╚██████╔╝╚██████╗██║  ██║███████╗███████╗
+  ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝       
+"
+# <===================================================>
+separator="<===================================================>"
+# <===================================================>
+color_off='\033[0m'
+color_black='\033[1;30m'
+color_red='\033[1;31m'
+color_green='\033[1;32m'
+color_yellow='\033[1;33m'
+color_blue='\033[1;34m'
+color_purple='\033[1;35m'
+color_cyan='\033[1;36m'
+color_white='\033[1;37m'
+# <===================================================>
+#  [Functions] Input & Output:
+# <===================================================>
+# Get some input in a formatted way
+# <===================================================>
+input () {
+	local color="color_$3"
+	echo -ne "${!color}${2}"
+	read "$1"
+	[[ "${4}" != "!" ]] && output $separator cyan !
+	return 0
+}
+# <===================================================>
+# Display some formatted output
+# <===================================================>
+output () {
+	local color="color_$2"
+	echo -e "${!color}${1}${color_off}"
+	[[ "${3}" != "!" ]] && output $separator cyan !
+	return 0
+}
+# <===================================================>
+#  [Code] Title:
+# <===================================================>
+output "" off
+output "$title" purple
+# <===================================================>
+#  [Code] Context Checks:
+# <===================================================>
+#  Check if curl is not avaiable
+# <===================================================>
+if ! command -v curl >/dev/null 2>&1; then
+    output "\n> Aborting as curl is not installed!" red !
+    exit 1
+fi
+# <===================================================>
+#  Check if jq is not avaiable
+# <===================================================>
+if ! command -v jq >/dev/null 2>&1; then
+    output "\n> Aborting as jq is not installed!" red !
+    exit 1
+fi
+# <===================================================>
+#  Check if awk is not avaiable
+# <===================================================>
+if ! command -v awk >/dev/null 2>&1; then
+    output "\n> Aborting as awk is not installed!" red !
+    exit 1
+fi
+# <===================================================>
+# Check if $origins file does not exist
+# <===================================================>
+if [ ! -f "$origins" ]; then
+    output "\n> Aborting as $origins does not exist!" red !
+    exit 1
+fi
+# <===================================================>
+# Check if $origins file cannot be read
+# <===================================================>
+if [ ! -r "$origins" ]; then
+    output "\n> Aborting as $origins is not readable!" red !
+    exit 1
+fi
+# <===================================================>
+# Check if $origins file is empty
+# <===================================================>
+if [ ! -s "$origins" ]; then
+    output "\n> Aborting as $origins is empty!" red !
+    exit 1
+fi
+# <===================================================>
+#  [Code] Check Loop:
+# <===================================================>
+output "> Checking for new releases..." blue
+# <===================================================>
+#  Holds outdated origins
+# <===================================================>
+outdated=() 
+# <===================================================>
+#  Read $origins file line by line
+# <===================================================>
+while IFS= read -r origin; do
+    # Get array of words in file
+    read -a fields <<< "$origin"
+    # Skip empty lines and ignore comments
+    if [ "${#fields[@]}" -eq "0" ] || [[ "$origin" == "#"* ]]; then
+        continue
+    fi
+    # Check if the current origin has the required fields
+    if [ "${#fields[@]}" -lt "3" ]; then
+        output "[~] Skipping (${fields[@]}) as it has a syntax error!" yellow !
+        continue
+    fi
+    # Check the current case
+    case ${fields[0]} in
+        aur)
+            # Get JSON from the Aurweb RPC Interface
+            JSON=$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg%5B%5D=${fields[1]}")
+            # Check if the API returned no results: Not Found
+            if [ "$(echo $JSON | jq -r '.resultcount')" = "0" ]; then
+                output "[~] Skipping ${fields[1]} as the package was not found!" yellow !
+                continue
+            fi
+            # Parse the latest release
+            latest=$(echo $JSON | jq -r '.results[0].Version')
+            # Check if there is a new release
+            if [ "$latest" != "${fields[2]}" ]; then
+                output "[%] New release for ${fields[1]} found: $latest" purple !
+                outdated+=(${fields[1]} $latest)
+            else
+                output "[#] Local ${fields[1]} up to date: $latest" green !
+            fi
+            ;;
+        github)
+            # Get JSON from the GitHub API
+            JSON=$(curl -s "https://api.github.com/repos/${fields[1]}/releases/latest")
+            # Check if the API returned a 404 error: Not Found
+            if [ "$(echo $JSON | jq -r '.status')" = "404" ]; then
+                output "[~] Skipping ${fields[1]} as the repository was not found!" yellow !
+                continue
+            fi
+            # Check if the API rate limit was reached
+            if echo "$JSON" | jq -r '.message' | grep -q "API rate limit exceeded"; then
+                output "[~] Skipping ${fields[1]} as the GitHub API rate limit was exceeded!" yellow !
+                continue
+            fi
+            # Parse the latest release
+            latest=$(echo $JSON | jq -r '.tag_name')
+            # Check if there is a new release
+            if [ "$latest" != "${fields[2]}" ]; then
+                output "[%] New release for ${fields[1]} found: $latest" purple !
+                outdated+=(${fields[1]} $latest)
+            else
+                output "[#] Local ${fields[1]} up to date: $latest" green !
+            fi
+            ;;
+        github-commit)
+            # Get JSON from the GitHub API
+            JSON=$(curl -s "https://api.github.com/repos/${fields[1]}/branches/${fields[3]:-master}")
+            # Check if the API returned a 404 error: Not Found
+            if [ "$(echo $JSON | jq -r '.status')" = "404" ]; then
+                output "[~] Skipping ${fields[1]} as the repository was not found!" yellow !
+                continue
+            fi
+            # Check if the API rate limit was reached
+            if echo "$JSON" | jq -r '.message' | grep -q "API rate limit exceeded"; then
+                output "[~] Skipping ${fields[1]} as the GitHub API rate limit was exceeded!" yellow !
+                continue
+            fi
+            # Parse the latest release
+            latest=$(echo $JSON | jq -r '.commit.sha')
+            # Check if there is a new release
+            if [ "$latest" != "${fields[2]}" ]; then
+                output "[%] New commit for ${fields[1]} found: $latest" purple !
+                outdated+=(${fields[1]} $latest)
+            else
+                output "[#] Local ${fields[1]} up to date: $latest" green !
+            fi
+            ;;
+        *)
+            output "[~] Skipping ${fields[1]} as provider ${fields[0]} is not supported!" yellow !
+            continue
+            ;;
+    esac
+done < "$origins"
+# <===================================================>
+output "$separator" cyan !
+output "> Everything checked!" blue
+# <===================================================>
+#  [Code] Outdated Check:
+# <===================================================>
+#  Check if there are any outdated origins
+# <===================================================>
+if [ ! "${#outdated[@]}" -gt "0" ]; then
+    exit 0
+fi
+# <===================================================>
+#  [Code] Update Loop:
+# <===================================================>
+output "> Outdated packages:" blue
+# <===================================================>
+#  Loop trough outdated packages
+# <===================================================>
+for (( i=0; i+1<${#outdated[@]}; i+=2 )); do
+    output "~ $i. ${outdated[$i]} -> ${outdated[$i+1]}" cyan !
+done
+output "$separator" cyan !
+# <===================================================>
+#  Prompt for origins
+# <===================================================>
+input update "> Choose the origins to update to the latest version: " blue
+# <===================================================>
+#  Loop trough origins and update
+# <===================================================>
+# Get array of words in input
+read -a indexes <<< "$update"
+# Loop trough origins
+for i in "${indexes[@]}"; do
+    # Check if index is valid
+    if [[ ! "$i" =~ ^[0-9]+$ ]] || (( $i % 2 != 0 )) || [ "$i" -ge "${#outdated[@]}" ]; then
+        output "~ Input $i is not a valid index" yellow !
+        continue
+    fi
+    # Update the $origins file with new versions
+    content=$(awk -v name="${outdated[$i]}" -v version="${outdated[$i+1]}" '{if ($0 !~ /^#/ && $2 == name) {$3 = version;} print $0;}' $origins)
+    echo "$content" > $origins
+done
+# <===================================================>
+output "$separator" cyan !
+output "> Everything updated!" blue
+# <===================================================>
+exit 0
