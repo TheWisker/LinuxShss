@@ -105,7 +105,7 @@ When updating **LinuxShss** just follow the steps for installation.
 
 <h3 align="left">Buildtime</h3>
 
-The **LinuxShss** theme has no *buildtime* dependencies.
+The **LinuxShss** project has no *buildtime* dependencies.
 
 <h3 align="left">Runtime</h3>
 

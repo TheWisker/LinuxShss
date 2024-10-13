@@ -46,12 +46,12 @@
 </div>
 <h4 align="center">TheWisker</h4>
 
-[index]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#acknowledgment-index
-[bash-hook]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#bash-
-[jq-hook]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#jq-
-[curl-hook]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#curl-
-[gnu-hook]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#gnu-
-[aur-hook]: https://github.com/TheWisker/Shikai/blob/master/ACKNOWLEDGMENTS.md#aur-
+[index]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#acknowledgment-index
+[bash-hook]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#bash-
+[jq-hook]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#jq-
+[curl-hook]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#curl-
+[gnu-hook]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#gnu-
+[aur-hook]: https://github.com/TheWisker/LinuxShss/blob/master/ACKNOWLEDGMENTS.md#aur-
 
 [bash]: https://www.gnu.org/software/bash/
 [jq]: https://jqlang.github.io/jq/
